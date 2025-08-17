@@ -1,12 +1,27 @@
 package com.example.hanumanchalisa.ui.theme.screen
 
-
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -84,79 +99,228 @@ private val hanumanChalisaHindglish = listOf(
 fun HomeScreen(innerPadding: PaddingValues = PaddingValues(0.dp)) {
     var count by remember { mutableStateOf(0) }
     var isHindglish by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding),
+            .padding(innerPadding)
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.weight(1f))
-        HanumanImage()
-        Spacer(modifier = Modifier.height(16.dp)) // Space between the image and button
-        ToggleHindglishButton(isHindglish) { isHindglish = !isHindglish }
-        Spacer(modifier = Modifier.height(16.dp)) // Space between the button and text
-        ChaupaiText(count, isHindglish)
-        Spacer(modifier = Modifier.weight(1f))
-        NavigationRow(count, hanumanChalisa.size, onPrev = {
-            if (count > 0) count--
-        }, onNext = {
-            if (hanumanChalisa.size - 1 > count) count++
-        })
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Enhanced Header Section
+        HeaderSection()
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Enhanced Hanuman Image
+        EnhancedHanumanImage()
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Language Toggle Button
+        EnhancedToggleButton(isHindglish) { isHindglish = !isHindglish }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Enhanced Chaupai Card
+        EnhancedChaupaiCard(count, isHindglish)
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Enhanced Navigation
+        EnhancedNavigationRow(
+            count, 
+            hanumanChalisa.size, 
+            onPrev = { if (count > 0) count-- }, 
+            onNext = { if (hanumanChalisa.size - 1 > count) count++ }
+        )
+        
+        Spacer(modifier = Modifier.height(100.dp)) // Extra space for bottom nav
     }
 }
 
 @Composable
-fun ToggleHindglishButton(isHindglish: Boolean, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .padding(horizontal = 95.dp)
-            .fillMaxWidth()
-    ) {
-        Text(text = if (isHindglish) "Switch to Hindi" else "Switch to Hindglish")
-    }
-}
-
-@Composable
-private fun HanumanImage() {
-    AsyncImage(
-        model = "https://scontent.frdp5-1.fna.fbcdn.net/v/t39.30808-6/366352711_855892225895406_8690056832090688564_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=XnHjITGqFcsQ7kNvgEsrTCI&_nc_ht=scontent.frdp5-1.fna&_nc_gid=AZdTRCZmHZw3IdHdWS_zBXq&oh=00_AYDUTz5mnTQSq_vTa9fMtv2OGmBow_ZDJ0FRt95qyXbsOQ&oe=66E724F1",
-        contentDescription = "Hanuman Image",
-        modifier = Modifier
-            .size(180.dp) // Adjust the size as needed
-            .padding(10.dp),
-        contentScale = ContentScale.Crop
-    )
-}
-
-@Composable
-private fun ChaupaiText(count: Int, isHindglish: Boolean) {
-    val text = if (isHindglish) hanumanChalisaHindglish[count] else hanumanChalisa[count]
-
-    Column(
+private fun HeaderSection() {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Text(
-            text = "Chaupai ${count + 1} of ${hanumanChalisa.size}",
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(9.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "🙏",
+                style = MaterialTheme.typography.displayMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "हनुमान चालीसा",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Hanuman Chalisa",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnhancedHanumanImage() {
+    Card(
+        modifier = Modifier
+            .size(200.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = CircleShape,
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            ),
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            AsyncImage(
+                model = "https://scontent.frdp5-1.fna.fbcdn.net/v/t39.30808-6/366352711_855892225895406_8690056832090688564_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=XnHjITGqFcsQ7kNvgEsrTCI&_nc_ht=scontent.frdp5-1.fna&_nc_gid=AZdTRCZmHZw3IdHdWS_zBXq&oh=00_AYDUTz5mnTQSq_vTa9fMtv2OGmBow_ZDJ0FRt95qyXbsOQ&oe=66E724F1",
+                contentDescription = "Hanuman Image",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnhancedToggleButton(isHindglish: Boolean, onClick: () -> Unit) {
+    val scale by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(150), label = ""
+    )
+    
+    ElevatedButton(
+        onClick = onClick,
+        modifier = Modifier
+            .scale(scale)
+            .padding(horizontal = 32.dp),
+        shape = RoundedCornerShape(25.dp),
+        colors = ButtonDefaults.elevatedButtonColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        ),
+        elevation = ButtonDefaults.elevatedButtonElevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 2.dp
+        )
+    ) {
+        Icon(
+            imageVector = if (isHindglish) Icons.Default.ArrowBack else Icons.Default.ArrowForward,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = text,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 24.sp),
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(16.dp)
+            text = if (isHindglish) "हिंदी में पढ़ें" else "English में पढ़ें",
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.SemiBold
+            )
         )
     }
 }
 
 @Composable
-private fun NavigationRow(
+private fun EnhancedChaupaiCard(count: Int, isHindglish: Boolean) {
+    val text = if (isHindglish) hanumanChalisaHindglish[count] else hanumanChalisa[count]
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Progress indicator
+            LinearProgressIndicator(
+                progress = { (count + 1).toFloat() / hanumanChalisa.size },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp)),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primaryContainer,
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Chaupai counter
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = "चौपाई ${count + 1} / ${hanumanChalisa.size}",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Main text
+            Text(
+                text = text,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 20.sp,
+                    lineHeight = 32.sp,
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnhancedNavigationRow(
     currentIndex: Int,
     maxIndex: Int,
     onPrev: () -> Unit,
@@ -165,20 +329,59 @@ private fun NavigationRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 84.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+            .padding(horizontal = 32.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Button(
+        // Previous Button
+        FilledTonalButton(
             onClick = onPrev,
-            enabled = currentIndex > 0
+            enabled = currentIndex > 0,
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(20.dp),
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            )
         ) {
-            Text(text = "Prev")
+            Icon(
+                Icons.Default.ArrowBack,
+                contentDescription = "Previous",
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "पिछला",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
         }
-        Button(
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        // Next Button
+        FilledTonalButton(
             onClick = onNext,
-            enabled = currentIndex < maxIndex - 1
+            enabled = currentIndex < maxIndex - 1,
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(20.dp),
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         ) {
-            Text(text = "Next")
+            Text(
+                text = "अगला",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                Icons.Default.ArrowForward,
+                contentDescription = "Next",
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }
@@ -190,4 +393,3 @@ fun DefaultHomeScreenPreview() {
         HomeScreen()
     }
 }
-
